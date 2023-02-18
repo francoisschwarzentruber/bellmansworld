@@ -2,7 +2,7 @@ const Q = [];
 const map = [];
 
 const SIZEX = 10;
-const SIZEY = 4;
+const SIZEY = 6;
 const MAXREWARD = 100;
 const ONEUNITREWARD = 100;
 
@@ -154,7 +154,7 @@ function executeAction(state, a) {
 
 const alpha = 0.2;
 const lambda = 0.9;
-const epsilon = 0.2;
+const epsilon = 0.5;
 
 function argmax(arr) { return arr.indexOf(Math.max(...arr)) }
 
