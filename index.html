@@ -7,6 +7,21 @@
 </head>
 
 <body>
+    <fieldset>
+        <legend>Select an algorithm:</legend>
+
+        <div>
+            <input type="radio" id="Qlearning" name="algo" value="Qlearning" checked>
+            <label for="Qlearning">Qlearning</label>
+        </div>
+
+        <div>
+            <input type="radio" id="SARSA" name="algo" value="SARSA">
+            <label for="SARSA">SARSA</label>
+        </div>
+    </fieldset>
+
+    
     <canvas id="canvas" width="640" height="480"></canvas>
     <script src="main.js"></script>
 

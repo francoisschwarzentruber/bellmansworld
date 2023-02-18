@@ -1,10 +1,11 @@
 const Q = [];
 const map = [];
 
+const SIZEX = 4;
+const SIZEY = 3;
 
 
-const SIZEX = 20;
-const SIZEY = 15;
+
 
 function init() {
     for (let x = 0; x < SIZEX; x++) {
@@ -16,20 +17,26 @@ function init() {
             }
         }
     }
+
     for (let x = 0; x < SIZEX; x++) {
         map.push([]);
         for (let y = 0; y < SIZEY; y++)
-            map[x].push(Math.random() > 0.9 ? Math.random() * 1000 : 0);
+            map[x].push(-5);
     }
 
-    for (let x = 0; x < SIZEX; x++) {
-        map[x][0] = -1000;
+    for (let x = 1; x < SIZEX - 1; x++) {
         map[x][SIZEY - 1] = -1000;
     }
-    for (let y = 0; y < SIZEY; y++) {
-        map[0][y] = -1000;
-        map[SIZEX - 1][y] = -1000;
-    }
+    map[SIZEX - 1][SIZEY-1] = 100;
+    /**
+        for (let x = 0; x < SIZEX; x++) {
+            map[x][0] = -1000;
+            map[x][SIZEY - 1] = -1000;
+        }
+        for (let y = 0; y < SIZEY; y++) {
+            map[0][y] = -1000;
+            map[SIZEX - 1][y] = -1000;
+        }*/
 
 }
 
@@ -41,15 +48,13 @@ function draw() {
     const maxreward = Math.max(...map.map((arr) => Math.max(...arr)));
     for (let x = 0; x < SIZEX; x++)
         for (let y = 0; y < SIZEY; y++) {
-            if (map[x][y] < 0) {
+            if (map[x][y] < -10) {
                 ctx.fillStyle = `rgb(255, 0, 0)`;
             } else if (maxreward == 0) {
-                ctx.fillStyle = `rgb(255, 255, 255)`
-
+                ctx.fillStyle = `rgb(255, 255, 255)`;
             } else
-                ctx.fillStyle = `rgb(255, 255, ${255 - Math.floor(map[x][y] * 255 / maxreward)})`
+                ctx.fillStyle = `rgb(255, 255, ${255 - Math.floor(map[x][y] * 255 / maxreward)})`;
             ctx.fillRect(x * 32, y * 32, 32, 32);
-
 
             ctx.save();
             ctx.translate(x * 32 + 16, y * 32 + 16);
@@ -60,38 +65,42 @@ function draw() {
                     for (let a = 0; a < 4; a++)
                         maxQ = Math.max(Q[x][y][a], maxQ);
 
-            let amax = 0;
-            let maxSoFar = -10000;
-            for (let a = 0; a < 4; a++) {
-                if (Q[x][y][a] > maxSoFar) {
-                    amax = a;
-                    maxSoFar = Q[x][y][a];
+            if (!isTerminal({ x, y })) {
+
+                let amax = [];
+                let maxSoFar = -10000;
+                for (let a = 0; a < 4; a++) {
+                    if (Q[x][y][a] > maxSoFar) {
+                        amax = [a];
+                        maxSoFar = Q[x][y][a];
+                    }
+                    else if (Q[x][y][a] == maxSoFar) {
+                        amax.push(a);
+                    }
                 }
-            }
 
+                for (let a = 0; a < 4; a++) {
+                    const c = maxQ == 0 ? 0 : Q[x][y][a] / maxQ;
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(0, 0, 0, ${c})`;
+                    ctx.moveTo(-6, -8);
+                    ctx.lineTo(0, -14);
+                    ctx.lineTo(6, -8);
+                    ctx.lineTo(-6, -8);
+                    ctx.stroke();
 
-            for (let a = 0; a < 4; a++) {
-                const c = maxQ == 0 ? 0 : Q[x][y][a] / maxQ;
-                ctx.beginPath();
-                ctx.strokeStyle = `rgba(0, 0, 0, ${c})`;
-                ctx.moveTo(-6, -8);
-                ctx.lineTo(0, -14);
-                ctx.lineTo(6, -8);
-                ctx.lineTo(-6, -8);
-                ctx.stroke();
-
-                if (a == amax) {
-                    ctx.fillStyle = "green";
-                    ctx.fill();
-
+                    if (amax.indexOf(a) >= 0) {
+                        ctx.fillStyle = "green";
+                        ctx.fill();
+                    }
+                    ctx.rotate(Math.PI / 2);
                 }
-                ctx.rotate(Math.PI / 2);
+
             }
             ctx.restore();
         }
 
-
-    ctx.strokeStyle = "orange"
+    ctx.strokeStyle = "black"
     for (let x = 0; x < SIZEX; x++) {
         ctx.beginPath();
         ctx.moveTo(x * 32, 0);
@@ -106,21 +115,28 @@ function draw() {
         ctx.stroke();
     }
 
-    /* ctx.lineWidth= 4;
-     ctx.strokeRect(state.x * 32, state.y * 32, 32, 32);
-     ctx.lineWidth= 1;
- */
+    ctx.lineWidth = 4;
+    ctx.strokeRect(state.x * 32, state.y * 32, 32, 32);
+    ctx.lineWidth = 1;
+
 }
 
 
 
 init();
-
 let state = { x: 4, y: 4 };
 
+reset();
 
 
 
+function reset() { state = { x: 0, y: SIZEY - 1 }; }
+
+
+
+function isTerminal(state) {
+    return Math.abs(map[state.x][state.y]) > 10;
+}
 function executeAction(state, a) {
     function executePureAction(state, a) {
         switch (a) {
@@ -132,43 +148,78 @@ function executeAction(state, a) {
     }
     let newstate = executePureAction(state, a);
 
-    if(map[newstate.x][newstate.y] > 0) {
-        newstate.x = Math.floor(Math.random() * SIZEX);
-        newstate.y = Math.floor(Math.random() * SIZEY);
-    }
+
     //wind
-    if(Math.random() > 1) {
+    /*if (Math.random() > 1) {
         newstate.y = Math.min(newstate.y + 1, SIZEY - 1);
-    }
+    }*/
+
     return newstate;
 }
 
 const alpha = 0.2;
 const lambda = 0.9;
-
+const epsilon = 0.5;
 
 function argmax(arr) { return arr.indexOf(Math.max(...arr)) }
+function selectActionEpsilonGreedy(state) {
+    return Math.random() < epsilon ? Math.floor(Math.random() * 4) : argmax(Q[state.x][state.y]);
+}
 
 function oneStepQlearning() {
-    const a = Math.random() > 0.2 ? Math.floor(Math.random() * 4) : argmax(Q[state.x][state.y]);
+    const a = selectActionEpsilonGreedy(state);
     const newstate = executeAction(state, a);
+    const reward = map[newstate.x][newstate.y];
 
     Q[state.x][state.y][a] = (1 - alpha) * Q[state.x][state.y][a] +
-        alpha * (map[state.x][state.y] +
-            lambda * Math.max(Q[newstate.x][newstate.y][0],
-                Q[newstate.x][newstate.y][1],
-                Q[newstate.x][newstate.y][2],
-                Q[newstate.x][newstate.y][3]
+        alpha * (reward +
+            lambda * Math.max(Q[newstate.x][newstate.y][0], Q[newstate.x][newstate.y][1],
+                Q[newstate.x][newstate.y][2], Q[newstate.x][newstate.y][3]
             ));
+
+
     state = newstate;
+    if (isTerminal(state))
+        reset();
+
 }
 
 
+
+let aSARSA = selectActionEpsilonGreedy(state);
+
+
+function oneStepSARSA() {
+    const newstate = executeAction(state, aSARSA);
+    const anext = selectActionEpsilonGreedy(newstate);
+    const reward = map[newstate.x][newstate.y];
+
+    Q[state.x][state.y][aSARSA] = (1 - alpha) * Q[state.x][state.y][aSARSA] +
+        alpha * (reward + lambda * Q[newstate.x][newstate.y][anext]);
+
+    state = newstate;
+    aSARSA = anext;
+
+    if (isTerminal(state))
+        reset();
+}
+
+
+
+
+let oneStep = oneStepQlearning;
+
+Qlearning.onclick = () => { oneStep = oneStepQlearning };
+SARSA.onclick = () => { oneStep = oneStepSARSA };
+
+
+
+
 setInterval(() => {
-    for (let i = 0; i < 10; i++)
-        oneStepQlearning();
+    for (let i = 0; i < 1; i++)
+        oneStep();
     draw();
-}, 1);
+}, 100);
 
 
 draw();
