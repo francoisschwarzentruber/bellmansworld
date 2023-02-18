@@ -11,7 +11,7 @@ imgBad.src = "./bad.png";
 
 
 imgGood = new Image();
-imgGood.src = "./good.png";
+imgGood.src = "./good.svg";
 
 imgNormal = new Image();
 imgNormal.src = "./normal.png";
@@ -60,7 +60,7 @@ function draw() {
             if (map[x][y] <= -ONEUNITREWARD) {
                 ctx.drawImage(imgBad, -16, -16);
             } else if (map[x][y] >= ONEUNITREWARD) {
-                ctx.drawImage(imgGood, -16, -16);
+                ctx.drawImage(imgGood, -16, -16, 32, 32);
             }
             else
                 ctx.drawImage(imgNormal, -16, -16);
