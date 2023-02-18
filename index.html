@@ -1,27 +1,46 @@
 <!DOCTYPE html>
 <html>
 <meta charset="utf-8">
+<style>
+    fieldset {
+        display: inline;
+    }
 
+    toolbar {
+        display:flex;
+        flex-direction: row;
+    }
+    canvas {
+        margin: 8px;
+    }
+</style>
 <head>
 
 </head>
 
-<body>
-    <fieldset>
-        <legend>Select an algorithm:</legend>
+<body oncontextmenu="return false;">
+    <toolbar>
+        <fieldset>
+            <legend>Select an algorithm:</legend>
 
+            <div>
+                <input type="radio" id="Qlearning" name="algo" value="Qlearning" checked>
+                <label for="Qlearning">Qlearning</label>
+            </div>
+
+            <div>
+                <input type="radio" id="SARSA" name="algo" value="SARSA">
+                <label for="SARSA">SARSA</label>
+            </div>
+        </fieldset>
         <div>
-            <input type="radio" id="Qlearning" name="algo" value="Qlearning" checked>
-            <label for="Qlearning">Qlearning</label>
-        </div>
-
-        <div>
-            <input type="radio" id="SARSA" name="algo" value="SARSA">
-            <label for="SARSA">SARSA</label>
-        </div>
-    </fieldset>
-
+            <h2>Help</h2>
+            Left mouse button: increase the reward in a cell (state).<br/>
+            Right mouse button: decrease the reward in a cell (state).
     
+        </div>
+    </toolbar>
+
     <canvas id="canvas" width="640" height="480"></canvas>
     <script src="main.js"></script>
 

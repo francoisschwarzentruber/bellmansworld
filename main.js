@@ -1,42 +1,50 @@
 const Q = [];
 const map = [];
 
-const SIZEX = 4;
-const SIZEY = 3;
+const SIZEX = 10;
+const SIZEY = 4;
+const MAXREWARD = 100;
+const ONEUNITREWARD = 100;
+
+imgBad = new Image();
+imgBad.src = "./bad.png";
 
 
+imgGood = new Image();
+imgGood.src = "./good.png";
 
+imgNormal = new Image();
+imgNormal.src = "./normal.png";
 
 function init() {
-    for (let x = 0; x < SIZEX; x++) {
-        Q.push([]);
-        for (let y = 0; y < SIZEY; y++) {
-            Q[x].push([]);
-            for (let a = 0; a < 4; a++) {
-                Q[x][y].push(0);
+    function initQ() {
+        for (let x = 0; x < SIZEX; x++) {
+            Q.push([]);
+            for (let y = 0; y < SIZEY; y++) {
+                Q[x].push([]);
+                for (let a = 0; a < 4; a++) {
+                    Q[x][y].push(0);
+                }
             }
         }
     }
 
-    for (let x = 0; x < SIZEX; x++) {
-        map.push([]);
-        for (let y = 0; y < SIZEY; y++)
-            map[x].push(-5);
+
+    function initMap() {
+        for (let x = 0; x < SIZEX; x++) {
+            map.push([]);
+            for (let y = 0; y < SIZEY; y++)
+                map[x].push(-1);
+        }
+
+        for (let x = 1; x < SIZEX - 1; x++) {
+            map[x][SIZEY - 1] = -MAXREWARD;
+        }
+        map[SIZEX - 1][SIZEY - 1] = MAXREWARD;
     }
 
-    for (let x = 1; x < SIZEX - 1; x++) {
-        map[x][SIZEY - 1] = -1000;
-    }
-    map[SIZEX - 1][SIZEY-1] = 100;
-    /**
-        for (let x = 0; x < SIZEX; x++) {
-            map[x][0] = -1000;
-            map[x][SIZEY - 1] = -1000;
-        }
-        for (let y = 0; y < SIZEY; y++) {
-            map[0][y] = -1000;
-            map[SIZEX - 1][y] = -1000;
-        }*/
+    initQ();
+    initMap();
 
 }
 
@@ -45,27 +53,28 @@ function draw() {
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, 640, 480);
 
-    const maxreward = Math.max(...map.map((arr) => Math.max(...arr)));
     for (let x = 0; x < SIZEX; x++)
         for (let y = 0; y < SIZEY; y++) {
-            if (map[x][y] < -10) {
-                ctx.fillStyle = `rgb(255, 0, 0)`;
-            } else if (maxreward == 0) {
-                ctx.fillStyle = `rgb(255, 255, 255)`;
-            } else
-                ctx.fillStyle = `rgb(255, 255, ${255 - Math.floor(map[x][y] * 255 / maxreward)})`;
-            ctx.fillRect(x * 32, y * 32, 32, 32);
-
             ctx.save();
             ctx.translate(x * 32 + 16, y * 32 + 16);
+            if (map[x][y] <= -ONEUNITREWARD) {
+                ctx.drawImage(imgBad, -16, -16);
+            } else if (map[x][y] >= ONEUNITREWARD) {
+                ctx.drawImage(imgGood, -16, -16);
+            }
+            else
+                ctx.drawImage(imgNormal, -16, -16);
 
-            let maxQ = 0;
-            for (let x = 0; x < SIZEX; x++)
-                for (let y = 0; y < SIZEY; y++)
-                    for (let a = 0; a < 4; a++)
-                        maxQ = Math.max(Q[x][y][a], maxQ);
+
 
             if (!isTerminal({ x, y })) {
+
+
+                let maxQ = 0;
+                for (let x = 0; x < SIZEX; x++)
+                    for (let y = 0; y < SIZEY; y++)
+                        for (let a = 0; a < 4; a++)
+                            maxQ = Math.max(Q[x][y][a], maxQ);
 
                 let amax = [];
                 let maxSoFar = -10000;
@@ -90,7 +99,7 @@ function draw() {
                     ctx.stroke();
 
                     if (amax.indexOf(a) >= 0) {
-                        ctx.fillStyle = "green";
+                        ctx.fillStyle = "#00AA00";
                         ctx.fill();
                     }
                     ctx.rotate(Math.PI / 2);
@@ -98,45 +107,31 @@ function draw() {
 
             }
             ctx.restore();
+
         }
 
-    ctx.strokeStyle = "black"
-    for (let x = 0; x < SIZEX; x++) {
-        ctx.beginPath();
-        ctx.moveTo(x * 32, 0);
-        ctx.lineTo(x * 32, SIZEY * 32);
-        ctx.stroke();
+        /*
+    function drawCurrentState() {
+        ctx.lineWidth = 4;
+        ctx.strokeRect(state.x * 32, state.y * 32, 32, 32);
+        ctx.lineWidth = 1;
     }
 
-    for (let y = 0; y < SIZEY; y++) {
-        ctx.beginPath();
-        ctx.moveTo(0, y * 32);
-        ctx.lineTo(SIZEX * 32, y * 32);
-        ctx.stroke();
-    }
-
-    ctx.lineWidth = 4;
-    ctx.strokeRect(state.x * 32, state.y * 32, 32, 32);
-    ctx.lineWidth = 1;
-
+    drawCurrentState();*/
 }
 
 
 
-init();
+
 let state = { x: 4, y: 4 };
-
-reset();
-
 
 
 function reset() { state = { x: 0, y: SIZEY - 1 }; }
 
 
 
-function isTerminal(state) {
-    return Math.abs(map[state.x][state.y]) > 10;
-}
+function isTerminal(state) { return Math.abs(map[state.x][state.y]) >= ONEUNITREWARD; }
+
 function executeAction(state, a) {
     function executePureAction(state, a) {
         switch (a) {
@@ -159,9 +154,10 @@ function executeAction(state, a) {
 
 const alpha = 0.2;
 const lambda = 0.9;
-const epsilon = 0.5;
+const epsilon = 0.2;
 
 function argmax(arr) { return arr.indexOf(Math.max(...arr)) }
+
 function selectActionEpsilonGreedy(state) {
     return Math.random() < epsilon ? Math.floor(Math.random() * 4) : argmax(Q[state.x][state.y]);
 }
@@ -176,18 +172,15 @@ function oneStepQlearning() {
             lambda * Math.max(Q[newstate.x][newstate.y][0], Q[newstate.x][newstate.y][1],
                 Q[newstate.x][newstate.y][2], Q[newstate.x][newstate.y][3]
             ));
-
-
     state = newstate;
     if (isTerminal(state))
         reset();
-
 }
 
 
-
+reset();
+init();
 let aSARSA = selectActionEpsilonGreedy(state);
-
 
 function oneStepSARSA() {
     const newstate = executeAction(state, aSARSA);
@@ -214,13 +207,21 @@ SARSA.onclick = () => { oneStep = oneStepSARSA };
 
 
 
-
+//main
 setInterval(() => {
-    for (let i = 0; i < 1; i++)
+    for (let i = 0; i < 100; i++)
         oneStep();
     draw();
-}, 100);
+}, 1);
 
+canvas.onmousedown = (evt) => {
+    const x = Math.floor(evt.offsetX / 32);
+    const y = Math.floor(evt.offsetY / 32);
+    if (evt.button == 0)
+        map[x][y] = Math.min(MAXREWARD, map[x][y] + ONEUNITREWARD+1)
+    else
+        map[x][y] = Math.max(-MAXREWARD, map[x][y] - ONEUNITREWARD);
 
-draw();
-
+    if (map[x][y] == 0)
+        map[x][y] = -1;
+};
