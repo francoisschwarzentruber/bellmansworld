@@ -1,6 +1,7 @@
 const Q = [];
 const map = [];
 
+const CELLPIXELS = 64;
 const SIZEX = 10;
 const SIZEY = 6;
 const MAXREWARD = 100;
@@ -11,7 +12,7 @@ imgBad.src = "./bad.png";
 
 
 imgGood = new Image();
-imgGood.src = "./good.svg";
+imgGood.src = "./bell.svg";
 
 imgNormal = new Image();
 imgNormal.src = "./normal.png";
@@ -56,14 +57,14 @@ function draw() {
     for (let x = 0; x < SIZEX; x++)
         for (let y = 0; y < SIZEY; y++) {
             ctx.save();
-            ctx.translate(x * 32 + 16, y * 32 + 16);
+            ctx.translate(x * CELLPIXELS + CELLPIXELS/2, y * CELLPIXELS + CELLPIXELS/2);
             if (map[x][y] <= -ONEUNITREWARD) {
-                ctx.drawImage(imgBad, -16, -16);
+                ctx.drawImage(imgBad, -CELLPIXELS/2, -CELLPIXELS/2, CELLPIXELS, CELLPIXELS);
             } else if (map[x][y] >= ONEUNITREWARD) {
-                ctx.drawImage(imgGood, -16, -16, 32, 32);
+                ctx.drawImage(imgGood, -CELLPIXELS/2, -CELLPIXELS/2, CELLPIXELS, CELLPIXELS);
             }
             else
-                ctx.drawImage(imgNormal, -16, -16);
+                ctx.drawImage(imgNormal, -CELLPIXELS/2, -CELLPIXELS/2, CELLPIXELS, CELLPIXELS);
 
 
 
@@ -92,10 +93,10 @@ function draw() {
                     const c = maxQ == 0 ? 0 : Q[x][y][a] / maxQ;
                     ctx.beginPath();
                     ctx.strokeStyle = `rgba(0, 0, 0, ${c})`;
-                    ctx.moveTo(-6, -8);
-                    ctx.lineTo(0, -14);
-                    ctx.lineTo(6, -8);
-                    ctx.lineTo(-6, -8);
+                    ctx.moveTo(-6*CELLPIXELS/32, -8*CELLPIXELS/32);
+                    ctx.lineTo(0, -14*CELLPIXELS/32);
+                    ctx.lineTo(6*CELLPIXELS/32, -8*CELLPIXELS/32);
+                    ctx.lineTo(-6*CELLPIXELS/32, -8*CELLPIXELS/32);
                     ctx.stroke();
 
                     if (amax.indexOf(a) >= 0) {
@@ -113,7 +114,7 @@ function draw() {
         /*
     function drawCurrentState() {
         ctx.lineWidth = 4;
-        ctx.strokeRect(state.x * 32, state.y * 32, 32, 32);
+        ctx.strokeRect(state.x * CELLPIXELS, state.y * CELLPIXELS, CELLPIXELS, CELLPIXELS);
         ctx.lineWidth = 1;
     }
 
@@ -215,8 +216,8 @@ setInterval(() => {
 }, 1);
 
 canvas.onmousedown = (evt) => {
-    const x = Math.floor(evt.offsetX / 32);
-    const y = Math.floor(evt.offsetY / 32);
+    const x = Math.floor(evt.offsetX / CELLPIXELS);
+    const y = Math.floor(evt.offsetY / CELLPIXELS);
     if (evt.button == 0)
         map[x][y] = Math.min(MAXREWARD, map[x][y] + ONEUNITREWARD+1)
     else

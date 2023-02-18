@@ -7,18 +7,40 @@
     }
 
     toolbar {
-        display:flex;
+        display: flex;
         flex-direction: row;
     }
+
     canvas {
         margin: 8px;
     }
 </style>
+
 <head>
 
 </head>
 
 <body oncontextmenu="return false;">
+    <h2>Bellman's World</h2>
+    <div> Welcome to Bellman's world! A tribute to Richard E. Bellman. A mouse called Bellman has to reach some
+        bell.
+        <ul>
+            <li>Reaching some bell gives her 100€ (reward of 100€).</li>
+            <li>Reaching some spikes hearts and she looses 100€ (reward of -100€).</li>
+            <li> Each step to an empty cell costs 1€
+                (reward of -1€).</li>
+        </ul>
+    </div>
+    <div>
+        You can modify the map.
+        <ul>
+            <li>Left mouse button: increase the reward in a cell (state): spikes → empty → bell.</li>
+            <li>Right mouse button: decrease the reward in a cell (state): bell → empty → spikes.</li>
+        </ul>
+        <br />
+        
+    </div>
+
     <toolbar>
         <fieldset>
             <legend>Select an algorithm:</legend>
@@ -34,10 +56,7 @@
             </div>
         </fieldset>
         <div>
-            <h2>Help</h2>
-            Left mouse button: increase the reward in a cell (state).<br/>
-            Right mouse button: decrease the reward in a cell (state).
-    
+            
         </div>
     </toolbar>
 
