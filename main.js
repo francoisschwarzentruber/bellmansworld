@@ -8,14 +8,14 @@ const MAXREWARD = 100;
 const ONEUNITREWARD = 100;
 
 imgBad = new Image();
-imgBad.src = "./bad.png";
+imgBad.src = "./img/2620.svg";
 
 
 imgGood = new Image();
-imgGood.src = "./bell.svg";
+imgGood.src = "./img/1F382.svg";
 
 imgNormal = new Image();
-imgNormal.src = "./normal.png";
+imgNormal.src = "./img/normal.png";
 
 function init() {
     function initQ() {
